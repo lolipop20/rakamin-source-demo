@@ -2,13 +2,14 @@ package Saucedemo;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvValidationException;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.junit.Assert;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import io.github.bonigarcia.wdm.WebDriverManager;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
@@ -21,6 +22,7 @@ public class LoginDDT {
         String baseUrl = "https://www.saucedemo.com/";
 
         WebDriverManager.chromedriver().setup();
+
         ChromeOptions opt = new ChromeOptions();
         opt.setHeadless(false);
 
@@ -34,7 +36,7 @@ public class LoginDDT {
                 String status = nextLine[2];
 
                 driver = new ChromeDriver(opt);
-                driver.manage().timeouts().implicitlyWait(60, TimeUnit.SECONDS);
+                driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS); // Kurangi waktu timeout
                 driver.manage().window().maximize();
 
                 // Navigasi ke halaman login
@@ -45,16 +47,15 @@ public class LoginDDT {
                 driver.findElement(By.id("password")).sendKeys(password);
                 driver.findElement(By.id("login-button")).click();
 
-                if (status.equals("success")) {
+                if (status.equals("PASS")) { // Ubah "success" menjadi "PASS"
                     // Assertion jika login sukses
                     String product = driver.findElement(By.xpath("//div[text()='Products']")).getText();
                     Assert.assertEquals(product, "Products");
                 } else {
                     // Assertion jika login gagal
-                    String errorLogin = driver.findElement(By.xpath("//h3[text()='Epic sadface: Username and password do not match any user in this service']")).getText();
+                    String errorLogin = driver.findElement(By.xpath("//*[contains(text(), 'Epic sadface: Username and password do not match any user in this service')]")).getText();
                     Assert.assertEquals(errorLogin, "Epic sadface: Username and password do not match any user in this service");
                 }
-
                 driver.quit(); // Tutup browser setelah pengujian satu data selesai
             }
         } catch (IOException e) {
